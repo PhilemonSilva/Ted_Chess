@@ -20,47 +20,79 @@
 
 <body>
   <div class='flex w-screen h-screen place-content-center'>
-    <div id='knigth' class="bg-red-500 w-2 h-2" draggable="true" ondragstart="HandleDragStart(event);"></div>
+    <div>
+      <img id='knigth' class="absolute w-14 h-14 p-2" draggable="true" src="icons/knight.png"
+        ondragstart="HandleDragStart(event);">
+    </div>
+
     <div class='flex w-128 h-128 place-content-center p-3'>
       <div id='board' class='rounded bg-white w-5/6 h-5/6 self-center flex flex-col p-1'>
-        <div class='flex flex-grow flex-shrink '>
-          <div ondragover="HandleDragOver(event);" ondrop="HandleDrop(event);"
-            class="flex place-content-center flex-grow flex-shrink border border-gray-700 hover:bg-gray-200 hover:scale-110 transition duration-300">
-          </div>
-          <div
-            class="text-center flex-grow flex-shrink border border-gray-700 hover:bg-gray-200 hover:scale-110 transition duration-300">
-          </div>
-        </div>
-        <div class='flex flex-grow flex-shrink'>
-          <div
-            class="text-center flex-grow flex-shrink border border-gray-700 hover:bg-gray-200 hover:scale-110 transition duration-300">
-          </div>
-          <div
-            class="text-center flex-grow flex-shrink border border-gray-700 hover:bg-gray-200 hover:scale-110 transition duration-300">
-          </div>
-        </div>
       </div>
     </div>
+
+    <div>
+      <img id='goal' class="absolute w-14 h-14 p-2" draggable="true" src="icons/go_here.png"
+      ondragstart="HandleDragStart(event);">
+
+    </div>
+    
   </div>
   </div>
   <script>
-    function HandleDragStart(event) {
-      event.dataTransfer.setData('text/plain', event.target.id);
-      event.currentTarget.classList.add('scale-95');
+    var cellVisuals = "flex place-content-center items-center flex-grow flex-shrink border border-gray-700 hover:scale-110 transition duration-300";
+    var rowVisuals = "flex flex-grow flex-shrink";
+
+    function GenerateChessBoard() {
+      let boardElement = document.getElementById('board');
+
+      for (let i = 0; i < 8; i++) {
+        let row = document.createElement('div');
+        row.className = rowVisuals;
+        let black = i % 2 !== 0;
+
+        for (let j = 0; j < 8; j++) {
+          let cell = document.createElement('div');
+          cell.setAttribute("ondragover", "HandleDragOver(event)");
+          cell.setAttribute("ondrop", "HandleDrop(event)");
+          cell.addEventListener("dragenter", HandleDragEnter);
+          cell.addEventListener("dragleave", HandleDragLeave);
+          cell.className = `${cellVisuals} ${black ? 'bg-gray-900' : 'bg-gray-100'}`;
+          row.appendChild(cell);
+          black = !black;
+        }
+        boardElement.appendChild(row);
+      }
     }
 
-    function HandleDragOver(event) {
-      event.preventDefault();
+    function HandleDragStart(event) {
+      event.dataTransfer.setData('text/plain', event.target.id);
+      event.currentTarget.classList.add('animate-pulse');
     }
+
+    function HandleDragEnter(event) {
+      event.target.classList.add('animate-pulse');
+      event.target.classList.add('scale-110');
+    }
+
+    function HandleDragLeave(event) {
+      event.target.classList.remove('animate-pulse');
+      event.target.classList.remove('scale-110');
+    }
+
+    function HandleDragOver(event) { event.preventDefault(); }
 
     function HandleDrop(event) {
       const id = event.dataTransfer.getData('text');
       const draggableElement = document.getElementById(id);
+      draggableElement.classList.remove('animate-pulse');
       const dropzone = event.target;
       dropzone.appendChild(draggableElement);
+      dropzone.classList.remove('animate-pulse');
+      event.target.classList.remove('scale-110');
       event.dataTransfer.clearData();
     }
 
+    GenerateChessBoard();
   </script>
 </body>
 
